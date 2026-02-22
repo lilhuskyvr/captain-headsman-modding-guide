@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
+import nextra from 'nextra'
+import type { NextConfig } from 'next'
+
+const withNextra = nextra({})
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  // your existing Next config options here
+}
 
-export default nextConfig;
+export default withNextra(nextConfig)
