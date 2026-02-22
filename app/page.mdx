@@ -51,7 +51,7 @@ The `$type` field tells the deserializer which data class to use. The `id` field
 
 ## Quick-start: your first mod
 
-1. Create a file at `StreamingAssets/Mods/MyFirstMod.json`.
+1. Create a file at `StreamingAssets/Mods/ExecuteOrReleaseMod.json`.
 2. Paste the following to disable the stripping options from the verdict screen:
 
 ```json
@@ -68,7 +68,7 @@ The `$type` field tells the deserializer which data class to use. The `id` field
 
 3. Launch the game. The verdict screen now only shows Execute and Release.
 
-That is all there is to it.
+> **Why this filename?** The game merges files with the same `id` in alphabetical filename order. Your file must be named so it sorts *after* the default file (`ExecuteOrRelease.json`). `ExecuteOrReleaseMod.json` satisfies this because `M` sorts after `.`.
 
 ---
 

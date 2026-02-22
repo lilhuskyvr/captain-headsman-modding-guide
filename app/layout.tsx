@@ -22,7 +22,7 @@ export default async function RootLayout({ children }) {
         <Layout
           navbar={navbar}
           pageMap={await getPageMap()}
-          docsRepositoryBase="https://github.com/shuding/nextra"
+          docsRepositoryBase="https://github.com/lilhuskyvr/captain-headsman-modding-guide"
           footer={footer}
           sidebar={{ defaultMenuCollapseLevel: 1 }}
         >

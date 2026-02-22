@@ -26,7 +26,7 @@ Exchanges are the dialogue pools used by `DialogueNode`, `ExecutePrisonerNode`, 
 
 Lines within each inner array alternate speakers:
 
-| Index | Speaker (default — `headsmanFirst: false`) |
+| Index | Speaker (`headsmanFirst: false`) |
 |---|---|
 | 0 | Prisoner |
 | 1 | Headsman |
@@ -44,8 +44,7 @@ When `headsmanFirst` is set to `true` on the node, the order flips:
 | 3 | Prisoner |
 | … | … |
 
-`DialogueNode` always uses `headsmanFirst: true` (the Headsman opens the interrogation).
-`ExecutePrisonerNode` uses `headsmanFirst: false` by default (prisoner speaks last words first).
+`headsmanFirst` defaults to `true` on all nodes, so the Headsman speaks first unless overridden. `ExecutePrisonerNode` (and `StripAndExecutePrisonerNode`) ship with `headsmanFirst: false` in their default JSON so the prisoner delivers last words first. Any node's `headsmanFirst` can be overridden in your mod JSON.
 
 ---
 
@@ -75,36 +74,6 @@ Any line may contain `{prisonerName}`. The game replaces it at runtime with the 
   ["Is this what you call justice?"]
 ]
 ```
-
----
-
-## Writing guidelines
-
-### Characters
-
-- All rebels are between **19 and 25 years old**. Write their voices accordingly: raw, reactive, not yet smoothed over by age or experience.
-- **They do not have children.** Never give a prisoner children of their own. Some have siblings — a brother conscripted, a sister who disappeared, a younger one still at home.
-- They may have **killed the king's soldiers** and be unashamed of it. Do not soften this.
-- **All of them hate the crown** to some degree, even those who joined for bread. The conditions that drove them here were made by the king.
-- Do not give any prisoner a profession requiring years of formal training (physician, magistrate, scholar) or backstory that contradicts their age.
-
-### Motivations (use the full range)
-
-- **Hunger and desperation** — no ideology, just survival. They don't hate the king so much as they were starving.
-- **Deep personal hatred** — a loved one killed in a raid, a village burned, a family destroyed by a garrison.
-- **A prior execution** — someone close was put on a block like this one by a former captain. That detail should land hard when it appears.
-- **Pride** — they fought, they killed soldiers, and they are not ashamed to say so.
-
-### Scene
-
-The prisoner kneels with both arms tied behind their back inside a medieval military camp. The Headsman stands in front of them. The power imbalance is absolute. The prisoner cannot move or fight back.
-
-- The Headsman: **unhurried, controlled, pressing**. He has done this before.
-- The prisoner: **stripped of everything except words**. Raw, reactive, sometimes defiant, sometimes brittle.
-
-### Storytelling
-
-Each exchange should be a **self-contained story beat** about this specific prisoner. It should reveal their background, motivation, and humanity (or absence of it). The conversation should feel like it matters — the Headsman pressing, the prisoner resisting, both of them arriving somewhere by the end. Avoid filler. Every line should carry weight.
 
 ---
 
