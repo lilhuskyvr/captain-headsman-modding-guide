@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             content: 'Question? Give us feedback →',
             link: 'https://github.com/lilhuskyvr/captain-headsman-modding-guide/issues/new',
           }}
-          search={{ placeholder: 'Search documentation...' }}
+          search={false}
           footer={footer}
           sidebar={{ defaultMenuCollapseLevel: 1 }}
         >
