@@ -14,7 +14,7 @@ export const metadata = {
 const navbar = <Navbar logo={<b>Captain Headsman — Modding Guide</b>} />
 const footer = <Footer>Captain Headsman Modding Guide</Footer>
 
-export default async function RootLayout({ children }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <Head />
