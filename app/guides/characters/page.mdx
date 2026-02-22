@@ -1,0 +1,120 @@
+---
+title: Characters
+---
+
+# Characters
+
+A character definition controls which 3D model is used for a prisoner and which node sequences the game can start them on. The two default characters are `MaleRebel` and `FemaleRebel`.
+
+**`$type`:** `Scripts.DataComponents.CharacterDataObject, Assembly-CSharp`
+
+---
+
+## Fields
+
+### `id`
+
+String. The unique identifier for this character. Used to reference the character elsewhere. Case-sensitive.
+
+---
+
+### `isMale`
+
+Boolean. Determines which name pool is used when generating this character's name (`maleNames` or `femaleNames` from GameSettings).
+
+```json
+"isMale": true
+```
+
+---
+
+### `addressableId`
+
+String. The name of the Unity Addressable asset to load for this character's 3D model and rig. The built-in values are `"MaleRebel"` and `"FemaleRebel"`. Custom characters are not supported in the current version — set this to one of the two built-in values.
+
+```json
+"addressableId": "MaleRebel"
+```
+
+---
+
+### `defaultNodeIds`
+
+Array of strings. A pool of node `id` values the game can pick from as the starting node for this character's sequence. The game picks one at random each time this character is captured.
+
+```json
+"defaultNodeIds": ["male_rebel_interrogation"]
+```
+
+You can list multiple node ids here to randomise which interrogation sequence plays:
+
+```json
+"defaultNodeIds": [
+  "male_rebel_interrogation",
+  "my_custom_interrogation_a",
+  "my_custom_interrogation_b"
+]
+```
+
+---
+
+### `canBeCaptured`
+
+Boolean. When `false`, this character type will never be sent to the block — effectively disabling them. Defaults to `true` when omitted.
+
+```json
+"canBeCaptured": false
+```
+
+---
+
+## Examples
+
+### Patch an existing character
+
+Point the male rebel at a custom interrogation node instead of the default:
+
+```json
+{
+  "$type": "Scripts.DataComponents.CharacterDataObject, Assembly-CSharp",
+  "id": "MaleRebel",
+  "defaultNodeIds": ["my_custom_interrogation"]
+}
+```
+
+### Disable a character type
+
+Prevent female rebels from appearing entirely:
+
+```json
+{
+  "$type": "Scripts.DataComponents.CharacterDataObject, Assembly-CSharp",
+  "id": "FemaleRebel",
+  "canBeCaptured": false
+}
+```
+
+### Add multiple starting nodes for variety
+
+```json
+{
+  "$type": "Scripts.DataComponents.CharacterDataObject, Assembly-CSharp",
+  "id": "MaleRebel",
+  "defaultNodeIds": [
+    "male_rebel_interrogation",
+    "my_hostile_rebel_start",
+    "my_silent_rebel_start"
+  ]
+}
+```
+
+---
+
+## Built-in characters
+
+| `id` | `addressableId` | `isMale` |
+|---|---|---|
+| `MaleRebel` | `MaleRebel` | `true` |
+| `FemaleRebel` | `FemaleRebel` | `false` |
+
+> Custom character models are not supported in the current release. You must use `"MaleRebel"` or `"FemaleRebel"` as the `addressableId`.

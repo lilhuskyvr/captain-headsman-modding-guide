@@ -1,0 +1,204 @@
+---
+title: Exchanges
+---
+
+# Exchanges
+
+Exchanges are the dialogue pools used by `DialogueNode`, `ExecutePrisonerNode`, `StripAndExecutePrisonerNode`, `ReleasePrisonerNode`, and `StripPrisonerNode`. The game picks one exchange at random each time that node is reached.
+
+---
+
+## Format
+
+`exchanges` is an array of arrays. Each inner array is one possible exchange. The game picks one inner array per event and plays its lines in order.
+
+```json
+"exchanges": [
+  [ "line 0", "line 1", "line 2" ],
+  [ "line 0", "line 1" ],
+  [ "line 0", "line 1", "line 2", "line 3", "line 4" ]
+]
+```
+
+---
+
+## Speaker order
+
+Lines within each inner array alternate speakers:
+
+| Index | Speaker (default — `headsmanFirst: false`) |
+|---|---|
+| 0 | Prisoner |
+| 1 | Headsman |
+| 2 | Prisoner |
+| 3 | Headsman |
+| … | … |
+
+When `headsmanFirst` is set to `true` on the node, the order flips:
+
+| Index | Speaker (`headsmanFirst: true`) |
+|---|---|
+| 0 | Headsman |
+| 1 | Prisoner |
+| 2 | Headsman |
+| 3 | Prisoner |
+| … | … |
+
+`DialogueNode` always uses `headsmanFirst: true` (the Headsman opens the interrogation).
+`ExecutePrisonerNode` uses `headsmanFirst: false` by default (prisoner speaks last words first).
+
+---
+
+## `{prisonerName}` placeholder
+
+Any line may contain `{prisonerName}`. The game replaces it at runtime with the prisoner's generated name.
+
+```json
+"I know who you are, {prisonerName}. Word travels.",
+```
+
+```json
+"Then you know what I've done. Headsman.",
+```
+
+---
+
+## `StripPrisonerNode` exchanges
+
+`StripPrisonerNode` and `StripAndDismissPrisonerNode` use single-line exchanges — each inner array contains exactly one string: the prisoner's reaction. The Headsman does not speak during a strip.
+
+```json
+"exchanges": [
+  ["You have no right."],
+  ["Don't touch me."],
+  ["Stop. Just stop."],
+  ["Is this what you call justice?"]
+]
+```
+
+---
+
+## Writing guidelines
+
+### Characters
+
+- All rebels are between **19 and 25 years old**. Write their voices accordingly: raw, reactive, not yet smoothed over by age or experience.
+- **They do not have children.** Never give a prisoner children of their own. Some have siblings — a brother conscripted, a sister who disappeared, a younger one still at home.
+- They may have **killed the king's soldiers** and be unashamed of it. Do not soften this.
+- **All of them hate the crown** to some degree, even those who joined for bread. The conditions that drove them here were made by the king.
+- Do not give any prisoner a profession requiring years of formal training (physician, magistrate, scholar) or backstory that contradicts their age.
+
+### Motivations (use the full range)
+
+- **Hunger and desperation** — no ideology, just survival. They don't hate the king so much as they were starving.
+- **Deep personal hatred** — a loved one killed in a raid, a village burned, a family destroyed by a garrison.
+- **A prior execution** — someone close was put on a block like this one by a former captain. That detail should land hard when it appears.
+- **Pride** — they fought, they killed soldiers, and they are not ashamed to say so.
+
+### Scene
+
+The prisoner kneels with both arms tied behind their back inside a medieval military camp. The Headsman stands in front of them. The power imbalance is absolute. The prisoner cannot move or fight back.
+
+- The Headsman: **unhurried, controlled, pressing**. He has done this before.
+- The prisoner: **stripped of everything except words**. Raw, reactive, sometimes defiant, sometimes brittle.
+
+### Storytelling
+
+Each exchange should be a **self-contained story beat** about this specific prisoner. It should reveal their background, motivation, and humanity (or absence of it). The conversation should feel like it matters — the Headsman pressing, the prisoner resisting, both of them arriving somewhere by the end. Avoid filler. Every line should carry weight.
+
+---
+
+## Examples
+
+### Opening interrogation exchange
+
+```json
+"exchanges": [
+  [
+    "You don't look like you've held a weapon before. What's your name?",
+    "{prisonerName}. And I hadn't. Not until six months ago.",
+    "What happened six months ago?",
+    "The tax collectors came through. My brother argued with them. They beat him to death in the street while the rest of us watched.",
+    "And no one intervened.",
+    "We were afraid. I'm still ashamed of that. So when the rebels came through and asked who wanted to do something about it, I said yes.",
+    "You've been doing something about it for six months, {prisonerName}. Two of my soldiers are dead.",
+    "I know. I was there for one of them. I don't sleep well.",
+    "Neither do I. That doesn't change what happens next."
+  ]
+]
+```
+
+### Last-words exchanges (`ExecutePrisonerNode`, `headsmanFirst: false`)
+
+```json
+"exchanges": [
+  [
+    "Please. My brother is at home alone. He'll have nothing without me.",
+    "I know."
+  ],
+  [
+    "Do it then. I'm not afraid of you.",
+    "Good."
+  ],
+  [
+    "Tell my family I didn't break.",
+    "I won't be your messenger. Kneel."
+  ]
+]
+```
+
+### Release exchanges (`ReleasePrisonerNode`)
+
+```json
+"exchanges": [
+  [
+    "I can go? Just like that?",
+    "Just like that. Don't make me regret it."
+  ],
+  [
+    "Why are you letting me go?",
+    "Because it suits me. Walk."
+  ],
+  [
+    "You're going to let me tell people you spared me.",
+    "Smart. Now leave before I change my mind."
+  ]
+]
+```
+
+### Strip reaction exchanges (`StripPrisonerNode`)
+
+```json
+"exchanges": [
+  ["You have no right."],
+  ["Don't touch me."],
+  ["Stop. Just stop."],
+  ["Is this what you call justice?"],
+  ["I complied. Was that not enough?"]
+]
+```
+
+---
+
+## Patching exchanges into an existing node
+
+You do not need to replace an entire node to add exchanges. Because the merge is shallow, you can patch only the `exchanges` field:
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "execute_prisoner",
+  "exchanges": [
+    [
+      "I want to pray first.",
+      "Make it quick."
+    ],
+    [
+      "Is there nothing I can say?",
+      "Not today."
+    ]
+  ]
+}
+```
+
+This replaces the entire exchange pool for `execute_prisoner` with your two exchanges. The `nodeType`, `headsmanFirst`, and all other fields remain as the defaults.

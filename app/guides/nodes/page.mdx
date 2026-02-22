@@ -1,0 +1,257 @@
+---
+title: Nodes
+---
+
+# Nodes
+
+Nodes are the building blocks of every prisoner sequence. A sequence is a chain of nodes that starts from a character's `defaultNodeIds` and ends when a terminal node resolves.
+
+**`$type`:** `Scripts.DataComponents.NodeDataObject, Assembly-CSharp`
+
+---
+
+## Common fields
+
+Every node file shares these fields:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | yes | Unique identifier. Referenced by other nodes and by characters. |
+| `nodeType` | string | yes | Which node behaviour to use. See node types below. |
+
+---
+
+## Node types
+
+### `DialogueNode`
+
+Plays an interrogation exchange between the Headsman and the prisoner, then advances to the next node. This is the standard opening beat of a sequence.
+
+| Field | Type | Description |
+|---|---|---|
+| `nextNodeIds` | string[] | One or more node ids to advance to after the exchange. One is picked at random. |
+| `exchanges` | string[][] | Pool of dialogue exchanges. See the [Exchanges](/guides/exchanges) guide. |
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "my_interrogation",
+  "nodeType": "DialogueNode",
+  "nextNodeIds": ["execute_or_release"],
+  "exchanges": [
+    [
+      "What is your name?",
+      "Why does it matter?",
+      "It doesn't. Tell me anyway.",
+      "{prisonerName}. There. Satisfied?"
+    ]
+  ]
+}
+```
+
+---
+
+### `OptionNode`
+
+Presents the player with a list of labelled buttons. Each button routes to a different node. This is the verdict screen.
+
+| Field | Type | Description |
+|---|---|---|
+| `options` | Option[] | List of buttons. Each option has a `text` label and a `nodeId` destination. |
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "execute_or_release",
+  "nodeType": "OptionNode",
+  "options": [
+    { "text": "Execute",           "nodeId": "execute_prisoner"           },
+    { "text": "Strip and Execute", "nodeId": "strip_and_execute_prisoner" },
+    { "text": "Strip",             "nodeId": "strip_prisoner"             },
+    { "text": "Strip and Dismiss", "nodeId": "strip_and_dismiss_prisoner" },
+    { "text": "Release",           "nodeId": "release_prisoner"           }
+  ]
+}
+```
+
+---
+
+### `ExecutePrisonerNode`
+
+Plays a last-words exchange and then triggers the execution sequence.
+
+| Field | Type | Description |
+|---|---|---|
+| `headsmanFirst` | boolean | When `true`, the Headsman speaks first. When `false`, the prisoner speaks first. Defaults to `false`. |
+| `exchanges` | string[][] | Pool of last-words exchanges. |
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "execute_prisoner",
+  "nodeType": "ExecutePrisonerNode",
+  "headsmanFirst": false,
+  "exchanges": [
+    [
+      "Do it. I have nothing left to say.",
+      "As you wish."
+    ]
+  ]
+}
+```
+
+---
+
+### `StripAndExecutePrisonerNode`
+
+Same as `ExecutePrisonerNode` but strips the prisoner before execution.
+
+**Additional fields:** `headsmanFirst`, `exchanges` — identical to `ExecutePrisonerNode`.
+
+---
+
+### `StripPrisonerNode`
+
+Strips the prisoner and ends the sequence (the prisoner is not released and not executed — they are left stripped).
+
+| Field | Type | Description |
+|---|---|---|
+| `exchanges` | string[][] | Pool of single-line prisoner reactions. Each exchange is a one-element array containing a single prisoner line. The Headsman does not speak. |
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "strip_prisoner",
+  "nodeType": "StripPrisonerNode",
+  "exchanges": [
+    ["You have no right."],
+    ["Don't touch me."],
+    ["Is this really necessary?"]
+  ]
+}
+```
+
+---
+
+### `StripAndDismissPrisonerNode`
+
+Strips the prisoner and releases them.
+
+**Additional fields:** `exchanges` — same format as `StripPrisonerNode`.
+
+---
+
+### `ReleasePrisonerNode`
+
+Releases the prisoner without harm.
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "release_prisoner",
+  "nodeType": "ReleasePrisonerNode",
+  "exchanges": [
+    [
+      "I can go?",
+      "Walk. Don't make me reconsider."
+    ]
+  ]
+}
+```
+
+---
+
+### `CaptureRebelNode`
+
+Internal node that handles the capture moment. No modder-facing fields beyond `id` and `nodeType`. Included here for completeness.
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "capture_rebel",
+  "nodeType": "CaptureRebelNode"
+}
+```
+
+---
+
+## Wiring nodes together
+
+Every sequence must eventually resolve to a terminal node (Execute, Strip, Strip and Dismiss, or Release). A typical chain:
+
+```
+[Character.defaultNodeIds]
+        ↓
+  DialogueNode           ← interrogation exchange
+        ↓
+  OptionNode             ← player chooses verdict
+    ↓        ↓
+Execute    Release       ← outcome nodes
+```
+
+You can insert additional `DialogueNode` or `OptionNode` steps anywhere in the chain.
+
+---
+
+## Default node ids
+
+These are the built-in node ids shipped with the game. You can patch any of them by creating a file with the same `id`.
+
+| `id` | Type | Purpose |
+|---|---|---|
+| `capture_rebel` | `CaptureRebelNode` | Handles capture event |
+| `male_rebel_interrogation` | `DialogueNode` | Opening interrogation for male rebels |
+| `female_rebel_interrogation` | `DialogueNode` | Opening interrogation for female rebels |
+| `execute_or_release` | `OptionNode` | Verdict screen |
+| `execute_prisoner` | `ExecutePrisonerNode` | Clean execution |
+| `strip_and_execute_prisoner` | `StripAndExecutePrisonerNode` | Strip then execute |
+| `strip_prisoner` | `StripPrisonerNode` | Strip and leave |
+| `strip_and_dismiss_prisoner` | `StripAndDismissPrisonerNode` | Strip and release |
+| `release_prisoner` | `ReleasePrisonerNode` | Release without harm |
+
+---
+
+## Example: branching verdict screen
+
+Add a "Make an example" route that strips and then executes:
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "execute_or_release",
+  "nodeType": "OptionNode",
+  "options": [
+    { "text": "Execute",          "nodeId": "execute_prisoner"           },
+    { "text": "Make an example",  "nodeId": "strip_and_execute_prisoner" },
+    { "text": "Release",          "nodeId": "release_prisoner"           }
+  ]
+}
+```
+
+## Example: second interrogation beat before verdict
+
+Insert a second dialogue node between a custom interrogation and the verdict screen:
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "my_interrogation",
+  "nodeType": "DialogueNode",
+  "nextNodeIds": ["my_second_beat"],
+  "exchanges": [
+    ["What is your name?", "None of your business."]
+  ]
+}
+```
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "my_second_beat",
+  "nodeType": "DialogueNode",
+  "nextNodeIds": ["execute_or_release"],
+  "exchanges": [
+    ["Last chance. Anything to say?", "Nothing you'd want to hear."]
+  ]
+}
+```

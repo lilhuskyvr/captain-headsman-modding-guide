@@ -1,0 +1,82 @@
+---
+title: Overview
+---
+
+# Captain Headsman — Modding Guide
+
+Captain Headsman is moddable through plain JSON files placed in the `StreamingAssets` folder. No compilation, no special tools. Open a text editor, write your JSON, drop it in the right folder, launch the game.
+
+---
+
+## How the mod system works
+
+The game loads every `.json` file found anywhere inside `StreamingAssets/` at startup. Files are grouped by their `"id"` field. If two files share the same `id`, they are **shallow-merged** in alphabetical filename order — later files overwrite earlier ones at the top level. Your mod file only needs to contain the fields you want to change; everything else stays as the default.
+
+```
+StreamingAssets/
+  Default/          ← shipped defaults (do not edit these)
+    Characters/
+    Nodes/
+    GameSettings.json
+  Mods/             ← your mod files go here
+    MyGameSettingsMod.json
+    MyMaleRebelMod.json
+    …
+```
+
+> Place your files anywhere inside `StreamingAssets/`. The subfolder name does not matter. Using `Mods/` is the recommended convention.
+
+---
+
+## File anatomy
+
+Every JSON file the game loads must have at minimum:
+
+```json
+{
+  "$type": "<fully qualified C# type name>",
+  "id":    "<unique identifier string>"
+}
+```
+
+The `$type` field tells the deserializer which data class to use. The `id` field identifies which data object this file belongs to (or creates).
+
+| Purpose | `$type` value |
+|---|---|
+| Game settings | `Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp` |
+| Character definition | `Scripts.DataComponents.CharacterDataObject, Assembly-CSharp` |
+| Node definition | `Scripts.DataComponents.NodeDataObject, Assembly-CSharp` |
+
+---
+
+## Quick-start: your first mod
+
+1. Create a file at `StreamingAssets/Mods/MyFirstMod.json`.
+2. Paste the following to disable the stripping options from the verdict screen:
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "execute_or_release",
+  "nodeType": "OptionNode",
+  "options": [
+    { "text": "Execute", "nodeId": "execute_prisoner" },
+    { "text": "Release", "nodeId": "release_prisoner" }
+  ]
+}
+```
+
+3. Launch the game. The verdict screen now only shows Execute and Release.
+
+That is all there is to it.
+
+---
+
+## Guides
+
+| Guide | What it covers |
+|---|---|
+| [Game Settings](/guides/game-settings) | Name pools, action camera pivots |
+| [Characters](/guides/characters) | Prisoner character definitions |
+| [Nodes](/guides/nodes) | Node types and how to wire them together |
+| [Exchanges](/guides/exchanges) | Writing dialogue exchanges |

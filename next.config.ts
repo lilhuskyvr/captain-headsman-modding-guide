@@ -4,7 +4,11 @@ import type { NextConfig } from 'next'
 const withNextra = nextra({})
 
 const nextConfig: NextConfig = {
-  // your existing Next config options here
+  turbopack: {
+    resolveAlias: {
+      'next-mdx-import-source-file': './mdx-components.js'
+    }
+  }
 }
 
 export default withNextra(nextConfig)

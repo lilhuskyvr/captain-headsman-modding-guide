@@ -1,0 +1,115 @@
+---
+title: Game Settings
+---
+
+# Game Settings
+
+The `GameSettings` data object controls global game-wide configuration: the prisoner name pools and which camera pivots the action camera may use during executions.
+
+**`$type`:** `Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp`
+**`id`:** `GameSettings` *(fixed — there is exactly one game settings object)*
+
+---
+
+## Fields
+
+### `maleNames`
+
+Array of strings. The game picks a random name from this list when generating a male prisoner.
+
+```json
+"maleNames": ["Aldric", "Edmund", "Godric", "Harold", "Wulfric"]
+```
+
+Modding this field **replaces the entire list**. If you want to extend the default pool rather than replace it, include all the names you want alongside your additions — the mod system does a shallow merge, not an append.
+
+---
+
+### `femaleNames`
+
+Array of strings. Same as `maleNames` but for female prisoners.
+
+```json
+"femaleNames": ["Edith", "Maud", "Agnes", "Cecily", "Isolde"]
+```
+
+---
+
+### `actionCameraPivots`
+
+Array of strings. Each entry is the name of a camera pivot object in the scene. During an execution replay, the action camera picks shots from this list. Remove entries to suppress specific angles. Order is not significant.
+
+**Default pivots:**
+
+| Pivot name | Description |
+|---|---|
+| `ActionCameraLookAtFacePivot` | Close shot on the prisoner's face |
+| `ActionCameraLookAtNeckFromTop` | Top-down look at the neck |
+| `ActionCameraLookAtChestFromFront` | Mid-shot, chest height |
+| `ActionCameraLookAtHipsFromBottom` | Low angle, hips |
+| `ActionCameraLookAtHipsFromBehind` | Behind, hips level |
+| `ActionCameraLookAtBackFromBehind` | Behind, back level |
+| `PrisonerSpawnPointFront` | Frontal wide shot |
+| `PrisonerSpawnPointBack` | Rear wide shot |
+| `PrisonerSpawnPointLeft` | Left side |
+| `PrisonerSpawnPointRight` | Right side |
+| `PrisonerSpawnPointTopDown` | Directly overhead |
+| `PrisonerSpawnPointHighFrontLeft` | Elevated front-left |
+| `PrisonerSpawnPointHighFrontRight` | Elevated front-right |
+| `PrisonerSpawnPointHighBackLeft` | Elevated rear-left |
+| `PrisonerSpawnPointHighBackRight` | Elevated rear-right |
+| `PrisonerSpawnPointOrbit` | Orbiting dynamic shot |
+
+---
+
+## Examples
+
+### Replace the name pools entirely
+
+```json
+{
+  "$type": "Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp",
+  "id": "GameSettings",
+  "maleNames":   ["Aldric", "Edmund", "Godric", "Harold", "Oswin"],
+  "femaleNames": ["Edith", "Maud", "Agnes", "Cecily", "Isolde"]
+}
+```
+
+### Restrict the action camera to face and overhead shots only
+
+```json
+{
+  "$type": "Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp",
+  "id": "GameSettings",
+  "actionCameraPivots": [
+    "ActionCameraLookAtFacePivot",
+    "PrisonerSpawnPointTopDown"
+  ]
+}
+```
+
+### Disable the action camera entirely
+
+Set `actionCameraPivots` to an empty array:
+
+```json
+{
+  "$type": "Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp",
+  "id": "GameSettings",
+  "actionCameraPivots": []
+}
+```
+
+---
+
+## Merging behaviour
+
+Because the game shallow-merges files by `id`, you only need to include the fields you are changing. Array fields like `maleNames` are **replaced entirely** — not appended. To extend the defaults without replacing them, you must include the full default list plus your additions.
+
+```json
+{
+  "$type": "Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp",
+  "id": "GameSettings",
+  "maleNames": ["Aldric", "Edmund", "Godric", "Harold", "Oswin"]
+}
+```
