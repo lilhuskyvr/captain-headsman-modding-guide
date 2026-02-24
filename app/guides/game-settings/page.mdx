@@ -4,7 +4,7 @@ title: Game Settings
 
 # Game Settings
 
-The `GameSettings` data object controls global game-wide configuration: the prisoner name pools and which camera pivots the action camera may use during executions.
+The `GameSettings` data object controls global game-wide configuration: the prisoner name pools, which camera pivots the action camera may use during executions, and GIF recording options.
 
 **`$type`:** `Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp`
 **`id`:** `GameSettings` *(fixed — there is exactly one game settings object)*
@@ -54,11 +54,32 @@ Array of strings. Each entry is the name of a camera pivot object in the scene. 
 | `PrisonerSpawnPointLeft` | Left side |
 | `PrisonerSpawnPointRight` | Right side |
 | `PrisonerSpawnPointTopDown` | Directly overhead |
+| `PrisonerSpawnPointBottomUp` | Ground-level looking straight up |
 | `PrisonerSpawnPointHighFrontLeft` | Elevated front-left |
 | `PrisonerSpawnPointHighFrontRight` | Elevated front-right |
 | `PrisonerSpawnPointHighBackLeft` | Elevated rear-left |
 | `PrisonerSpawnPointHighBackRight` | Elevated rear-right |
 | `PrisonerSpawnPointOrbit` | Orbiting dynamic shot |
+
+---
+
+### `actionCamCreateGif`
+
+Boolean. When `true`, the action camera automatically records and saves an animated GIF for every execution sequence. Defaults to `false`.
+
+```json
+"actionCamCreateGif": true
+```
+
+---
+
+### `enableGifRecorder`
+
+Boolean. When `true`, pressing **F11** toggles a manual GIF recording session via the in-game GIF recorder. Defaults to `false`.
+
+```json
+"enableGifRecorder": true
+```
 
 ---
 
@@ -85,6 +106,17 @@ Array of strings. Each entry is the name of a camera pivot object in the scene. 
     "ActionCameraLookAtFacePivot",
     "PrisonerSpawnPointTopDown"
   ]
+}
+```
+
+### Enable automatic GIF capture and manual recorder
+
+```json
+{
+  "$type": "Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp",
+  "id": "GameSettings",
+  "actionCamCreateGif": true,
+  "enableGifRecorder": true
 }
 ```
 

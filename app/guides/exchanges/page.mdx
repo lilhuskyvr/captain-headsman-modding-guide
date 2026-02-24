@@ -4,7 +4,7 @@ title: Exchanges
 
 # Exchanges
 
-Exchanges are the dialogue pools used by `DialogueNode`, `ExecutePrisonerNode`, `StripAndExecutePrisonerNode`, `ReleasePrisonerNode`, and `StripPrisonerNode`. The game picks one exchange at random each time that node is reached.
+Exchanges are the dialogue pools used by `DialogueNode`, `ExecutePrisonerNode`, `StripAndExecutePrisonerNode`, `ReleasePrisonerNode`, `StripPrisonerNode`, and `StripAndDismissPrisonerNode`. The game picks one exchange at random each time that node is reached.
 
 ---
 
@@ -64,7 +64,7 @@ Any line may contain `{prisonerName}`. The game replaces it at runtime with the 
 
 ## `StripPrisonerNode` exchanges
 
-`StripPrisonerNode` and `StripAndDismissPrisonerNode` use single-line exchanges — each inner array contains exactly one string: the prisoner's reaction. The Headsman does not speak during a strip.
+`StripPrisonerNode` uses the same `string[][]` format as other nodes. The game picks one inner array at random and shows its first line as the prisoner's reaction.
 
 ```json
 "exchanges": [
@@ -73,6 +73,30 @@ Any line may contain `{prisonerName}`. The game replaces it at runtime with the 
   ["Stop. Just stop."],
   ["Is this what you call justice?"]
 ]
+```
+
+---
+
+## `fullyNakedExchanges`
+
+`StripPrisonerNode` supports a second pool called `fullyNakedExchanges`. This pool is used instead of `exchanges` once the prisoner has no clothing left to remove. It uses the same format.
+
+If `fullyNakedExchanges` is omitted or empty, the node falls back to `exchanges`.
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "strip_prisoner",
+  "nodeType": "StripPrisonerNode",
+  "exchanges": [
+    ["My mother will hear of this."],
+    ["Everyone will know. You've made sure of that."]
+  ],
+  "fullyNakedExchanges": [
+    ["I have nothing left. Not even the right to be ashamed in private."],
+    ["My mother used to say dignity was the one thing they couldn't take. She was wrong."]
+  ]
+}
 ```
 
 ---
@@ -136,6 +160,8 @@ Any line may contain `{prisonerName}`. The game replaces it at runtime with the 
 ```
 
 ### Strip reaction exchanges (`StripPrisonerNode`)
+
+The game picks one inner array at random and displays the first line as the prisoner's reaction.
 
 ```json
 "exchanges": [

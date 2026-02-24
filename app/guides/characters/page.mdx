@@ -68,6 +68,23 @@ Boolean. When `false`, this character type will never be sent to the block — e
 
 ---
 
+### `hairColors`
+
+Array of hex colour strings. One colour is picked at random each time this character spawns and applied as a tint to their hair material. Leave the array empty (or omit the field) to keep the material's default colour.
+
+```json
+"hairColors": [
+  "#0D0600",
+  "#3B1A07",
+  "#8B6A35",
+  "#6E6560"
+]
+```
+
+Replacing this array in a mod file **replaces the entire list** — the mod system does a shallow merge, not an append.
+
+---
+
 ## Examples
 
 ### Patch an existing character
@@ -104,6 +121,22 @@ Prevent female rebels from appearing entirely:
     "male_rebel_interrogation",
     "my_hostile_rebel_start",
     "my_silent_rebel_start"
+  ]
+}
+```
+
+### Change hair colours
+
+Give the male rebel lighter, sandy hair:
+
+```json
+{
+  "$type": "Scripts.DataComponents.CharacterDataObject, Assembly-CSharp",
+  "id": "MaleRebel",
+  "hairColors": [
+    "#C8A045",
+    "#D4B85A",
+    "#B89030"
   ]
 }
 ```

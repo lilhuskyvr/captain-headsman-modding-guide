@@ -26,6 +26,8 @@ StreamingAssets/
 
 > Place your files anywhere inside `StreamingAssets/`. The subfolder name does not matter. Using `Mods/` is the recommended convention.
 
+> **Disabling a mod file:** Any file whose name begins with `_` (underscore) is skipped in a release build. Rename `MyMod.json` to `_MyMod.json` to temporarily disable it without deleting it.
+
 ---
 
 ## File anatomy
@@ -45,7 +47,9 @@ The `$type` field tells the deserializer which data class to use. The `id` field
 |---|---|
 | Game settings | `Scripts.DataComponents.GameSettingsDataObject, Assembly-CSharp` |
 | Character definition | `Scripts.DataComponents.CharacterDataObject, Assembly-CSharp` |
-| Node definition | `Scripts.DataComponents.NodeDataObject, Assembly-CSharp` |
+| Node (most types) | `Scripts.DataComponents.NodeDataObject, Assembly-CSharp` |
+| OptionNode | `Scripts.DataComponents.OptionNodeDataObject, Assembly-CSharp` |
+| ViewTrophyNode | `Scripts.DataComponents.ViewTrophyNodeDataObject, Assembly-CSharp` |
 
 ---
 
@@ -56,7 +60,7 @@ The `$type` field tells the deserializer which data class to use. The `id` field
 
 ```json
 {
-  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "$type": "Scripts.DataComponents.OptionNodeDataObject, Assembly-CSharp",
   "id": "execute_or_release",
   "nodeType": "OptionNode",
   "options": [
@@ -76,7 +80,7 @@ The `$type` field tells the deserializer which data class to use. The `id` field
 
 | Guide | What it covers |
 |---|---|
-| [Game Settings](/guides/game-settings) | Name pools, action camera pivots |
-| [Characters](/guides/characters) | Prisoner character definitions |
+| [Game Settings](/guides/game-settings) | Name pools, action camera pivots, GIF settings |
+| [Characters](/guides/characters) | Prisoner character definitions and hair colours |
 | [Nodes](/guides/nodes) | Node types and how to wire them together |
 | [Exchanges](/guides/exchanges) | Writing dialogue exchanges |

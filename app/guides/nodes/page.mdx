@@ -6,8 +6,6 @@ title: Nodes
 
 Nodes are the building blocks of every prisoner sequence. A sequence is a chain of nodes that starts from a character's `defaultNodeIds` and ends when a terminal node resolves.
 
-**`$type`:** `Scripts.DataComponents.NodeDataObject, Assembly-CSharp`
-
 ---
 
 ## Common fields
@@ -18,6 +16,9 @@ Every node file shares these fields:
 |---|---|---|---|
 | `id` | string | yes | Unique identifier. Referenced by other nodes and by characters. |
 | `nodeType` | string | yes | Which node behaviour to use. See node types below. |
+| `headsmanFirst` | boolean | no | When `true`, the Headsman speaks first in exchanges. Defaults to `false`. |
+| `exchanges` | string[][] | no | Pool of dialogue exchanges. See the [Exchanges](/guides/exchanges) guide. |
+| `nextNodeIds` | string[] | no | Used by `DialogueNode`. One is picked at random after the exchange completes. |
 
 ---
 
@@ -55,13 +56,15 @@ Plays an interrogation exchange between the Headsman and the prisoner, then adva
 
 Presents the player with a list of labelled buttons. Each button routes to a different node. This is the verdict screen.
 
+**`$type`:** `Scripts.DataComponents.OptionNodeDataObject, Assembly-CSharp`
+
 | Field | Type | Description |
 |---|---|---|
-| `options` | Option[] | List of buttons. Each option has a `text` label and a `nodeId` destination. |
+| `options` | Option[] | List of buttons. Each option has a `text` label, a `nodeId` destination, and an optional `args` array. |
 
 ```json
 {
-  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "$type": "Scripts.DataComponents.OptionNodeDataObject, Assembly-CSharp",
   "id": "execute_or_release",
   "nodeType": "OptionNode",
   "options": [
@@ -74,6 +77,8 @@ Presents the player with a list of labelled buttons. Each button routes to a dif
 }
 ```
 
+> **Note:** `OptionNode` requires `$type` `OptionNodeDataObject`, not `NodeDataObject`. Using the wrong type causes the `options` field to be silently ignored.
+
 ---
 
 ### `ExecutePrisonerNode`
@@ -82,7 +87,7 @@ Plays a last-words exchange and then triggers the execution sequence.
 
 | Field | Type | Description |
 |---|---|---|
-| `headsmanFirst` | boolean | When `true`, the Headsman speaks first. When `false`, the prisoner speaks first. Defaults to `false`. |
+| `headsmanFirst` | boolean | When `true`, the Headsman speaks first. Defaults to `false` (prisoner speaks first). |
 | `exchanges` | string[][] | Pool of last-words exchanges. |
 
 ```json
@@ -104,7 +109,7 @@ Plays a last-words exchange and then triggers the execution sequence.
 
 ### `StripAndExecutePrisonerNode`
 
-Same as `ExecutePrisonerNode` but strips the prisoner before execution.
+Strips the prisoner of all clothing, plays a last-words exchange, then executes.
 
 **Additional fields:** `headsmanFirst`, `exchanges` — identical to `ExecutePrisonerNode`.
 
@@ -112,11 +117,12 @@ Same as `ExecutePrisonerNode` but strips the prisoner before execution.
 
 ### `StripPrisonerNode`
 
-Strips the prisoner and ends the sequence (the prisoner is not released and not executed — they are left stripped).
+Strips **one piece of clothing** from the prisoner and shows a single-line prisoner reaction. The player is then returned to whichever node was running before (typically the verdict screen), where they can choose to strip again or take another action.
 
 | Field | Type | Description |
 |---|---|---|
-| `exchanges` | string[][] | Pool of single-line prisoner reactions. Each exchange is a one-element array containing a single prisoner line. The Headsman does not speak. |
+| `exchanges` | string[][] | Pool of prisoner reactions shown while clothing remains. The game picks one inner array at random and shows its first line. |
+| `fullyNakedExchanges` | string[][] | Pool of reactions shown once all clothing is already gone. Falls back to `exchanges` if omitted. Same format. |
 
 ```json
 {
@@ -127,6 +133,10 @@ Strips the prisoner and ends the sequence (the prisoner is not released and not 
     ["You have no right."],
     ["Don't touch me."],
     ["Is this really necessary?"]
+  ],
+  "fullyNakedExchanges": [
+    ["I have nothing left. Not even the right to be ashamed in private."],
+    ["My mother used to say dignity was the one thing they couldn't take. She was wrong."]
   ]
 }
 ```
@@ -135,15 +145,33 @@ Strips the prisoner and ends the sequence (the prisoner is not released and not 
 
 ### `StripAndDismissPrisonerNode`
 
-Strips the prisoner and releases them.
+Strips the prisoner of **all** clothing at once, plays a full exchange, then releases them.
 
-**Additional fields:** `exchanges` — same format as `StripPrisonerNode`.
+| Field | Type | Description |
+|---|---|---|
+| `headsmanFirst` | boolean | When `true`, the Headsman opens the exchange. Defaults to `false`. |
+| `exchanges` | string[][] | Pool of multi-line exchanges played after stripping, before release. Standard two-speaker format. |
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "strip_and_dismiss_prisoner",
+  "nodeType": "StripAndDismissPrisonerNode",
+  "headsmanFirst": true,
+  "exchanges": [
+    [
+      "Go home. Walk through your village exactly as you are. Let them see you.",
+      "My mother lives on that road. Please — not past my mother's house."
+    ]
+  ]
+}
+```
 
 ---
 
 ### `ReleasePrisonerNode`
 
-Releases the prisoner without harm.
+Plays a short exchange and then releases the prisoner without harm.
 
 ```json
 {
@@ -155,6 +183,46 @@ Releases the prisoner without harm.
       "I can go?",
       "Walk. Don't make me reconsider."
     ]
+  ]
+}
+```
+
+---
+
+### `ViewTrophyNode`
+
+Shows the trophy camera and cycles through the displayed heads. Plays a comment about the current head, then shows navigation options.
+
+**`$type`:** `Scripts.DataComponents.ViewTrophyNodeDataObject, Assembly-CSharp`
+
+| Field | Type | Description |
+|---|---|---|
+| `options` | Option[] | Buttons shown below the comment, typically navigation and a back option. Pass `"args": ["left"]` or `"args": ["right"]` to control which direction the camera scrolls. |
+| `maleTrophyComments` | string[] | One-line comments shown when viewing a male head. Picked at random. |
+| `femaleTrophyComments` | string[] | One-line comments shown when viewing a female head. Picked at random. |
+| `noTrophyComments` | string[] | One-line comments shown when the current slot is empty. Picked at random. |
+
+```json
+{
+  "$type": "Scripts.DataComponents.ViewTrophyNodeDataObject, Assembly-CSharp",
+  "id": "view_trophy",
+  "nodeType": "ViewTrophyNode",
+  "options": [
+    { "text": "View left",  "nodeId": "view_trophy", "args": ["left"]  },
+    { "text": "View right", "nodeId": "view_trophy", "args": ["right"] },
+    { "text": "Back",       "nodeId": "main_menu" }
+  ],
+  "maleTrophyComments": [
+    "Wasted a perfectly good neck on bad ideas.",
+    "Young. Loud. Bold. Now just a head."
+  ],
+  "femaleTrophyComments": [
+    "Her mother always said she was too stubborn.",
+    "Bold until the very end. I'll give her that much."
+  ],
+  "noTrophyComments": [
+    "Empty pegs. Has everyone sobered up?",
+    "No heads. The fools are lying low."
   ]
 }
 ```
@@ -175,9 +243,33 @@ Internal node that handles the capture moment. No modder-facing fields beyond `i
 
 ---
 
+### `QuitGameNode`
+
+Plays through its exchanges as the Headsman's closing monologue, then quits the game.
+
+| Field | Type | Description |
+|---|---|---|
+| `headsmanFirst` | boolean | Should be `true` — the Headsman speaks the closing lines. |
+| `exchanges` | string[][] | Pool of single-line closing monologues. Each inner array contains one Headsman line. |
+
+```json
+{
+  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "id": "exit_game",
+  "nodeType": "QuitGameNode",
+  "headsmanFirst": true,
+  "exchanges": [
+    ["I need rest. The block will still be here tomorrow."],
+    ["Even the king's axe needs sharpening. Tomorrow we start again."]
+  ]
+}
+```
+
+---
+
 ## Wiring nodes together
 
-Every sequence must eventually resolve to a terminal node (Execute, Strip, Strip and Dismiss, or Release). A typical chain:
+Every sequence must eventually resolve to a terminal node (Execute, Strip and Execute, Strip and Dismiss, or Release). A typical chain:
 
 ```
 [Character.defaultNodeIds]
@@ -199,15 +291,18 @@ These are the built-in node ids shipped with the game. You can patch any of them
 
 | `id` | Type | Purpose |
 |---|---|---|
+| `main_menu` | `OptionNode` | Main menu (Capture / View trophy / Exit) |
 | `capture_rebel` | `CaptureRebelNode` | Handles capture event |
 | `male_rebel_interrogation` | `DialogueNode` | Opening interrogation for male rebels |
 | `female_rebel_interrogation` | `DialogueNode` | Opening interrogation for female rebels |
 | `execute_or_release` | `OptionNode` | Verdict screen |
 | `execute_prisoner` | `ExecutePrisonerNode` | Clean execution |
 | `strip_and_execute_prisoner` | `StripAndExecutePrisonerNode` | Strip then execute |
-| `strip_prisoner` | `StripPrisonerNode` | Strip and leave |
-| `strip_and_dismiss_prisoner` | `StripAndDismissPrisonerNode` | Strip and release |
+| `strip_prisoner` | `StripPrisonerNode` | Strip one item and return to verdict |
+| `strip_and_dismiss_prisoner` | `StripAndDismissPrisonerNode` | Strip all and release |
 | `release_prisoner` | `ReleasePrisonerNode` | Release without harm |
+| `view_trophy` | `ViewTrophyNode` | Trophy camera viewer |
+| `exit_game` | `QuitGameNode` | Closing monologue and quit |
 
 ---
 
@@ -217,7 +312,7 @@ Add a "Make an example" route that strips and then executes:
 
 ```json
 {
-  "$type": "Scripts.DataComponents.NodeDataObject, Assembly-CSharp",
+  "$type": "Scripts.DataComponents.OptionNodeDataObject, Assembly-CSharp",
   "id": "execute_or_release",
   "nodeType": "OptionNode",
   "options": [
